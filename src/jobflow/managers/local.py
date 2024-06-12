@@ -5,6 +5,9 @@ from __future__ import annotations
 import logging
 import typing
 
+from monty.json import jsanitize
+from monty.serialization import dumpfn
+
 if typing.TYPE_CHECKING:
     from pathlib import Path
 
@@ -22,6 +25,7 @@ def run_locally(
     ensure_success: bool = False,
     allow_external_references: bool = False,
     raise_immediately: bool = False,
+    job_json_in_folder: str | None = None,
 ) -> dict[str, dict[int, jobflow.Response]]:
     """
     Run a :obj:`Job` or :obj:`Flow` locally.
@@ -163,6 +167,8 @@ def run_locally(
         for job, parents in root_flow.iterflow():
             job_dir = _get_job_dir()
             with cd(job_dir):
+                if create_folders and job_json_in_folder is not None:
+                    dumpfn(jsanitize(job.as_dict()), job_json_in_folder)
                 response, jobflow_stopped = _run_job(job, parents)
 
             if response is not None:

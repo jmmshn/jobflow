@@ -461,3 +461,23 @@ def test_external_reference(memory_jobstore, clean_dir, simple_job):
     assert responses[uuid2][1].output == "12345_end_end"
     assert isinstance(responses[uuid2][1].job_dir, Path)
     assert os.path.isdir(responses[uuid2][1].job_dir)
+
+
+def test_local_folder(memory_jobstore, clean_dir, simple_flow):
+    from pathlib import Path
+
+    from monty.serialization import loadfn
+
+    from jobflow import Job, run_locally
+
+    flow = simple_flow()
+    uuid = flow[0].uuid
+    responses = run_locally(
+        flow, store=memory_jobstore, create_folders=True, job_json_in_folder="job.json"
+    )
+    # look for job.json files one level
+    json_files = list(Path(".").glob("job_*/job.json"))
+    assert len(json_files) == 1
+    job_ = loadfn(json_files[0])
+    assert isinstance(job_, Job)
+    assert responses[uuid][1].output == "12345_end"
