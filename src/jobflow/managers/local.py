@@ -21,7 +21,7 @@ def run_locally(
     root_dir: str | Path | None = None,
     ensure_success: bool = False,
     allow_external_references: bool = False,
-    raise_immediately: bool = False,
+    raise_immediately: bool = True,
 ) -> dict[str, dict[int, jobflow.Response]]:
     """
     Run a :obj:`Job` or :obj:`Flow` locally.
